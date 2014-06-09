@@ -1,10 +1,11 @@
+#![crate_id="docker#0.1"]
+#![feature(macro_rules)]
+
 extern crate debug;
 
 use std::io::net::unix::UnixStream;
 
 mod http;
-
-//fn make_request(host: &'static str, request_type: )
 
 fn main() {
   let socket_path = "/var/run/docker.sock";
