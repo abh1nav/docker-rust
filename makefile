@@ -1,7 +1,11 @@
-all: compile run
+all: compile
 
 compile:
-	rustc main.rs
+	rustc docker.rs
+
+test:
+	rustc --test docker.rs
+	./docker
 
 run:
-	./main
+	./docker

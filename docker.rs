@@ -1,13 +1,14 @@
 extern crate debug;
 
 use std::io::net::unix::UnixStream;
-use std::string::String;
+
+mod http;
+
+//fn make_request(host: &'static str, request_type: )
 
 fn main() {
   let socket_path = "/var/run/docker.sock";
   let request = "GET /containers/json HTTP/1.0\r\n\r\n";
-
-  make_request(&request);
 
   println!("Sending HTTP Request: {}", request);
   let socket = Path::new(socket_path);
@@ -29,5 +30,5 @@ fn main() {
     Ok(resp) => resp
   };
 
-  println!(resp);
+  println!("{}", resp);
 }
