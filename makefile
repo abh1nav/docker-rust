@@ -1,11 +1,11 @@
-all: compile
+all: clean compile
+
+clean:
+	rm -f ./docker ./libdocker*
 
 compile:
-	rustc docker.rs
+	rustc lib.rs
 
 test:
-	rustc --test docker.rs
-	./docker
-
-run:
+	rustc --test lib.rs
 	./docker

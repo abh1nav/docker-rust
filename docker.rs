@@ -1,14 +1,6 @@
-#![crate_type = "lib"]
-#![crate_id = "docker#0.1"]
-#![feature (globs, macro_rules)]
-
-extern crate debug;
-extern crate serialize;
-
-use Containers = containers::Containers;
-
-mod http;
-pub mod containers;
+use containers = super::common::containers;
+use Containers = super::common::containers::Containers;
+use http = super::http;
 
 pub struct Docker {
   socket_path: &'static str

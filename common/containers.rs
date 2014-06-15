@@ -3,29 +3,36 @@
 use serialize::{json, Decodable};
 use serialize::json::DecoderError;
 
-#[deriving(Decodable)]
-pub struct PortMapping {
-  IP: String,
-  PrivatePort: uint,
-  PublicPort: uint,
-  Type: String
-}
+use super::port_mapping::PortMapping;
+
+///
+/// Container representation returned by the /containers/json call
+///
 
 #[deriving(Decodable)]
 pub struct Container {
-  Command: String,
-  Created: u64,
-  Id: String,
-  Image: String,
-  Names: Vec<String>,
-  Ports: Vec<PortMapping>,
-  SizeRootFs: u64,
-  SizeRw: u64,  
-  Status: String
+  pub Command: String,
+  pub Created: u64,
+  pub Id: String,
+  pub Image: String,
+  pub Names: Vec<String>,
+  pub Ports: Vec<PortMapping>,
+  pub SizeRootFs: u64,
+  pub SizeRw: u64,  
+  pub Status: String
 }
+
+///
+/// Containers is a vector of Container objects - need this for 
+/// auto-deserilization
+///
 
 #[deriving(Decodable)]
 pub type Containers = Vec<Container>;
+
+///
+/// This is used to convert the HTTP response into a Containers object
+///
 
 pub fn parse(json_string: &str) -> Result<Containers, DecoderError> {
   let json_object = json::from_str(json_string);
@@ -33,17 +40,9 @@ pub fn parse(json_string: &str) -> Result<Containers, DecoderError> {
   Decodable::decode(&mut decoder)
 }
 
-#[test]
-fn test_port_mapping_deserialization() {
-  let json_string = "{\"IP\": \"0.0.0.0\", \"PrivatePort\": 9000, \"PublicPort\": 9001, \"Type\": \"tcp\"}";
-  let json_object = json::from_str(json_string);
-  let mut decoder = json::Decoder::new(json_object.unwrap());
-  let port_mapping: PortMapping = Decodable::decode(&mut decoder).unwrap();
-  assert!(port_mapping.IP == "0.0.0.0".to_string());
-  assert!(port_mapping.PrivatePort == 9000);
-  assert!(port_mapping.PublicPort == 9001);
-  assert!(port_mapping.Type == "tcp".to_string());
-}
+///
+/// Tests
+///
 
 #[test]
 fn test_container_deserialization() {
