@@ -18,7 +18,7 @@ impl Docker {
 
   pub fn get_containers(&self) -> Containers {
     let method = http::GET;
-    let path = "/containers/json";
+    let path = "/containers/json?all=1&size=1";
 
     let response = http::make_request(self.socket_path, method, path);
     let result = containers::parse(response.body.as_slice());

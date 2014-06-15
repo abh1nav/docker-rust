@@ -19,6 +19,8 @@ pub struct Container {
   Image: String,
   Names: Vec<String>,
   Ports: Vec<PortMapping>,
+  SizeRootFs: u64,
+  SizeRw: u64,  
   Status: String
 }
 
@@ -45,7 +47,7 @@ fn test_port_mapping_deserialization() {
 
 #[test]
 fn test_container_deserialization() {
-  let json_string = "{\"Command\":\"/bin/bash\",\"Created\":1402812645,\"Id\":\"8397b5a5a497b701d3514ca18ba11dc24b32378a7328ef28510c0f49ef30cddf\",\"Image\":\"ubuntu:14.04\",\"Names\":[\"/silly_kirch\"],\"Ports\":[],\"Status\": \"Up 26 seconds\",\"Ports\":[{\"IP\": \"0.0.0.0\", \"PrivatePort\": 9000, \"PublicPort\": 9001, \"Type\": \"tcp\"}]}";
+  let json_string = "{\"Command\":\"/bin/bash\",\"Created\":1402812645,\"Id\":\"8397b5a5a497b701d3514ca18ba11dc24b32378a7328ef28510c0f49ef30cddf\",\"Image\":\"ubuntu:14.04\",\"Names\":[\"/silly_kirch\"],\"Ports\":[],\"Status\": \"Up 26 seconds\",\"Ports\":[{\"IP\": \"0.0.0.0\", \"PrivatePort\": 9000, \"PublicPort\": 9001, \"Type\": \"tcp\"}],\"SizeRootFs\":100,\"SizeRw\":12288}";
   let json_object = json::from_str(json_string);
   let mut decoder = json::Decoder::new(json_object.unwrap());
 
@@ -56,6 +58,8 @@ fn test_container_deserialization() {
   assert!(c.Image == "ubuntu:14.04".to_string());
   assert!(c.Names.len() == 1);
   assert!(*c.Names.get(0) == "/silly_kirch".to_string());
+  assert!(c.SizeRootFs == 100u64);
+  assert!(c.SizeRw == 12288u64);
   assert!(c.Status == "Up 26 seconds".to_string());
   assert!(c.Ports.len() == 1);
 
@@ -68,7 +72,7 @@ fn test_container_deserialization() {
 
 #[test]
 fn test_parse_and_containers_deserialization() {
-  let json_string = "[{\"Command\":\"/bin/bash\",\"Created\":1402812645,\"Id\":\"8397b5a5a497b701d3514ca18ba11dc24b32378a7328ef28510c0f49ef30cddf\",\"Image\":\"ubuntu:14.04\",\"Names\":[\"/silly_kirch\"],\"Ports\":[],\"Status\": \"Up 26 seconds\",\"Ports\":[{\"IP\": \"0.0.0.0\", \"PrivatePort\": 9000, \"PublicPort\": 9001, \"Type\": \"tcp\"}]}]";
+  let json_string = "[{\"Command\":\"/bin/bash\",\"Created\":1402812645,\"Id\":\"8397b5a5a497b701d3514ca18ba11dc24b32378a7328ef28510c0f49ef30cddf\",\"Image\":\"ubuntu:14.04\",\"Names\":[\"/silly_kirch\"],\"Ports\":[],\"Status\": \"Up 26 seconds\",\"Ports\":[{\"IP\": \"0.0.0.0\", \"PrivatePort\": 9000, \"PublicPort\": 9001, \"Type\": \"tcp\"}],\"SizeRootFs\":100,\"SizeRw\":12288}]";
   let containers: Containers = parse(json_string).unwrap();
   assert!(containers.len() == 1);
  
@@ -79,6 +83,8 @@ fn test_parse_and_containers_deserialization() {
   assert!(c.Image == "ubuntu:14.04".to_string());
   assert!(c.Names.len() == 1);
   assert!(*c.Names.get(0) == "/silly_kirch".to_string());
+  assert!(c.SizeRootFs == 100u64);
+  assert!(c.SizeRw == 12288u64);
   assert!(c.Status == "Up 26 seconds".to_string());
   assert!(c.Ports.len() == 1);
   
