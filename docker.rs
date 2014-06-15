@@ -2,9 +2,10 @@
 #![feature(macro_rules)]
 
 extern crate debug;
+extern crate serialize;
 
 mod http;
-mod container;
+mod containers;
 
 pub struct Docker {
   socket_path: &'static str
@@ -23,7 +24,7 @@ impl Docker {
 }
 
 fn main() {
-  let d = Docker { socket_path: "/var/run/docker.sock" };
-  let containers: String = d.get_containers(); 
-  println!("{}", containers);
+  //let d = Docker { socket_path: "/var/run/docker.sock" };
+  //let containers: String = d.get_containers(); 
+  //println!("{}", containers);
 }
