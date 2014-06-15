@@ -1,6 +1,8 @@
 use std::io::net::unix::UnixStream;
 use std::string::String;
 
+pub mod response;
+
 /*
  * A macro to concatenate non-literal Strings.
  */
@@ -32,7 +34,7 @@ fn make_request_str(request_type: RequestType, path: &'static str) -> String {
   result.to_string()
 }
 
-pub fn make_request(socket_path: &'static str, request_type: RequestType, path: &'static str) -> String {
+pub fn make_request(socket_path: &'static str, request_type: RequestType, path: &'static str) -> response::Response {
   let http_request = make_request_str(request_type, path);
   let socket = Path::new(socket_path);
 
@@ -48,12 +50,12 @@ pub fn make_request(socket_path: &'static str, request_type: RequestType, path: 
   };
 
   // Read response
-  let resp = match stream.read_to_str() {
+  let resp: String = match stream.read_to_str() {
     Err(_) => fail!("response derped"),
     Ok(resp) => resp
   };
 
-  resp
+  response::parse(resp.as_slice())
 }
   
 #[test]
