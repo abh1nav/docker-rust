@@ -1,3 +1,5 @@
+#![allow(uppercase_variables)]
+
 use serialize::{json, Decodable};
 use serialize::json::DecoderError;
 

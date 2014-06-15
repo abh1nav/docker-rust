@@ -1,5 +1,6 @@
-//#![crate_id="docker#0.1"]
-#![feature(globs,macro_rules)]
+#![crate_type = "lib"]
+#![crate_id = "docker#0.1"]
+#![feature (globs, macro_rules)]
 
 extern crate debug;
 extern crate serialize;
@@ -27,10 +28,4 @@ impl Docker {
     }
   }
 
-}
-
-fn main() {
-  let d = Docker { socket_path: "/var/run/docker.sock" };
-  let containers = d.get_containers(); 
-  println!("Number of running containers = {}", containers.len());
 }
