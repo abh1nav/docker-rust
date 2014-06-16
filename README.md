@@ -22,11 +22,11 @@ extern crate docker;
 
 use docker::Docker;
 
-let docker: Docker = Docker {
+let client: Docker = Docker {
 	socket_path: "/var/run/docker.sock"
 };
   
-let containers = docker.get_containers();
+let containers = client.get_containers();
   
 println!("Running container count: {}", containers.len());
 ```
@@ -42,4 +42,3 @@ client.stop_container(container_id);
 // Remove the container and its volumes
 client.remove_container(container_id);
 ```
-  
