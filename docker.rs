@@ -39,12 +39,24 @@ impl Docker {
   }
 
   pub fn stop_container(&self, id: &str) {
-    println!("stop id is '{}'", id);
     let method = http::POST;
     let mut path = String::new();
     path.push_str("/containers/");
     path.push_str(id);
     path.push_str("/stop");
+
+    let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
+    if response.status_code < 200 || response.status_code >= 300 {
+      fail!("HTTP response code was {}", response.status_code);
+    }
+  }
+
+  pub fn remove_container(&self, id: &str) {
+    let method = http::DELETE;
+    let mut path = String::new();
+    path.push_str("/containers/");
+    path.push_str(id);
+    path.push_str("?v=1");
 
     let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
     if response.status_code < 200 || response.status_code >= 300 {
@@ -86,4 +98,7 @@ fn test_stop_and_remove_container() {
   // Stop the container
   let client = Docker { socket_path: "/var/run/docker.sock".to_string() };
   client.stop_container(container_id.as_slice());
+
+  // Remove the container
+  client.remove_container(container_id.as_slice());
 }

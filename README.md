@@ -25,9 +25,21 @@ use docker::Docker;
 let docker: Docker = Docker {
 	socket_path: "/var/run/docker.sock"
 };
-
+  
 let containers = docker.get_containers();
-
+  
 println!("Running container count: {}", containers.len());
+```
+  
+### Stop and remove a container
+  
+```rust
+let container_id = "5fc6a1226f01";
+
+// Stop the container
+client.stop_container(container_id);
+
+// Remove the container and its volumes
+client.remove_container(container_id);
 ```
   
