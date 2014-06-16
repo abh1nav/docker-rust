@@ -31,14 +31,23 @@ let containers = client.get_containers();
 println!("Running container count: {}", containers.len());
 ```
   
-### Stop and remove a container
+### Restart, stop and remove a container
   
 ```rust
-let container_id = "5fc6a1226f01";
+let container_id = "5fc6a1226f01".to_string();
+
+// Restart container
+client.restart_container(container_id.as_slice());
+// OR wait 3 seconds for the container to stop before forcing restart
+client.restart_container_with_timeout(container_id.as_slice(), Some(3));
 
 // Stop the container
-client.stop_container(container_id);
+client.stop_container(container_id.as_slice());
+// OR wait 3 seconds for the container to stop before killing
+client.stop_container_with_timeout(container_id.as_slice(), Some(3));
 
 // Remove the container and its volumes
-client.remove_container(container_id);
+client.remove_container(container_id.as_slice());
+// OR remove with the force flag
+client.remove_container_with_force(container_id.as_slice());
 ```

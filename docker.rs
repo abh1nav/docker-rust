@@ -112,10 +112,14 @@ impl Docker {
   ///
 
   pub fn remove_container(&self, id: &str) {
-    self.remove_container_force(id, false);
+    self.remove_container_impl(id, false);
   }
 
-  pub fn remove_container_force(&self, id:&str, force: bool) {
+  pub fn remove_container_with_force(&self, id:&str) {
+    self.remove_container_impl(id, true); 
+  }
+
+  fn remove_container_impl(&self, id:&str, force: bool) {
     let method = http::DELETE;
     let mut path = String::new();
     path.push_str("/containers/");
