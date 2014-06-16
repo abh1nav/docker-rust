@@ -79,17 +79,33 @@ impl Docker {
   ///
 
   pub fn restart_container(&self, id: &str) {
+    self.restart_container_with_timeout(id, None);
+  }
+
+  pub fn restart_container_with_timeout(&self, id: &str, wait_time: Option<uint>) {
     let method = http::POST;
     let mut path = String::new();
     path.push_str("/containers/");
     path.push_str(id);
     path.push_str("/restart");
 
+    match wait_time {
+      Some(timeout_value) => {
+        // If a wait time was specified, include it in the query string
+        path.push_str("?t=");
+        path.push_str(timeout_value.to_str().as_slice());
+      }
+      None => {
+        // Don't do anything
+      }
+    };
+
     let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
     if response.status_code < 200 || response.status_code >= 300 {
       fail!("HTTP response code was {}", response.status_code);
     }
   }
+
 
   ///
   /// DELETE /containers/(id)/
@@ -122,10 +138,30 @@ impl Docker {
 /// Test(s)
 ///
 
+#[cfg(test)]
+fn make_client() -> Docker {
+  Docker { socket_path: "/var/run/docker.sock".to_string() }
+}
+
+#[cfg(test)]
+fn start_busybox_container() -> Option<String> {
+  match Command::new("docker").arg("run").arg("-d")
+                              .arg("busybox").output() {
+    Ok(process_output) => {
+      let output = String::from_utf8(process_output.output).unwrap();
+      timer::sleep(1000);
+      let clean_output = output.as_slice().replace("\r\n", "");
+      let container_id = clean_output.as_slice().trim();
+      Some(String::from_str(container_id))
+    }
+    Err(_) => None
+  }
+}
+
 #[allow(type_limits)]
 #[test]
 fn test_get_containers() {
-  let client = Docker { socket_path: "/var/run/docker.sock".to_string() };
+  let client = make_client();
   let containers = client.get_containers();
   let count: uint = containers.len();
   assert!(count >= 0);
@@ -133,24 +169,31 @@ fn test_get_containers() {
 
 #[test]
 fn test_stop_and_remove_container() {
-  // First start a container
-  let output = match Command::new("docker")
-                          .arg("run")
-                          .arg("-d")
-                          .arg("busybox")
-                          .output() {
-    Ok(process_output) => String::from_utf8(process_output.output).unwrap(),
-    Err(e) => fail!("Failed to start the container we wanted to stop: {}", e)
+  // Start a test container
+  let container_id = match start_busybox_container() {
+    Some(id) => id,
+    None => fail!("Failed to start test container")
   };
 
-  let replace = output.as_slice().replace("\r\n", "");
-  let container_id = replace.as_slice().trim();
-  timer::sleep(3000);
-
-  // Stop the container
+  // Stop test container
   let client = Docker { socket_path: "/var/run/docker.sock".to_string() };
   client.stop_container(container_id.as_slice());
 
-  // Remove the container
+  // Remove test container
+  client.remove_container(container_id.as_slice());
+}
+
+#[test]
+fn test_restart_container() {
+  let container_id = match start_busybox_container() {
+    Some(id) => id,
+    None => fail!("Failed to start test container")
+  };
+
+  let client = make_client();
+  client.restart_container(container_id.as_slice());
+  timer::sleep(3000);
+
+  client.stop_container(container_id.as_slice());
   client.remove_container(container_id.as_slice());
 }
