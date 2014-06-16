@@ -22,6 +22,7 @@ extern crate docker;
 
 use docker::Docker;
 
+// Currently only works if docker is run using a unix socket (the default)
 let client: Docker = Docker {
 	socket_path: "/var/run/docker.sock"
 };
@@ -39,12 +40,12 @@ let container_id = "5fc6a1226f01".to_string();
 // Restart container
 client.restart_container(container_id.as_slice());
 // OR wait 3 seconds for the container to stop before forcing restart
-client.restart_container_with_timeout(container_id.as_slice(), Some(3));
+client.restart_container_with_timeout(container_id.as_slice(), 3);
 
 // Stop the container
 client.stop_container(container_id.as_slice());
 // OR wait 3 seconds for the container to stop before killing
-client.stop_container_with_timeout(container_id.as_slice(), Some(3));
+client.stop_container_with_timeout(container_id.as_slice(), 3);
 
 // Remove the container and its volumes
 client.remove_container(container_id.as_slice());

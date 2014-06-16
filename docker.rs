@@ -47,10 +47,14 @@ impl Docker {
   ///
 
   pub fn stop_container(&self, id: &str) {
-    self.stop_container_with_timeout(id, None);
+    self.stop_container_impl(id, None);
   }
 
-  pub fn stop_container_with_timeout(&self, id: &str, wait_time: Option<uint>) {
+  pub fn stop_container_with_timeout(&self, id: &str, wait_time: uint) {
+    self.stop_container_impl(id, Some(wait_time));
+  }
+
+  fn stop_container_impl(&self, id: &str, wait_time: Option<uint>) {
     let method = http::POST;
     let mut path = String::new();
     path.push_str("/containers/");
@@ -79,10 +83,14 @@ impl Docker {
   ///
 
   pub fn restart_container(&self, id: &str) {
-    self.restart_container_with_timeout(id, None);
+    self.restart_container_impl(id, None);
   }
 
-  pub fn restart_container_with_timeout(&self, id: &str, wait_time: Option<uint>) {
+  pub fn restart_container_with_timeout(&self, id: &str, wait_time: uint) {
+    self.restart_container_impl(id, Some(wait_time));
+  }
+
+  fn restart_container_impl(&self, id: &str, wait_time: Option<uint>) {
     let method = http::POST;
     let mut path = String::new();
     path.push_str("/containers/");
