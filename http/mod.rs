@@ -3,9 +3,9 @@ use std::string::String;
 
 pub mod response;
 
-/*
- * A macro to concatenate non-literal Strings.
- */
+///
+/// A macro to concatenate non-literal Strings.
+///
 macro_rules! cat(
   ($inp:ident, $($sp:ident),+) => ({
     $($inp.push_str($sp);)+
