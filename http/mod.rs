@@ -19,7 +19,7 @@ pub enum RequestType {
   DELETE
 }
 
-fn make_request_str(request_type: RequestType, path: &'static str) -> String {
+fn make_request_str(request_type: RequestType, path: &str) -> String {
   let mut result: String = String::new();
   let suffix = " HTTP/1.0\r\n\r\n";
 
@@ -34,7 +34,7 @@ fn make_request_str(request_type: RequestType, path: &'static str) -> String {
   result.to_string()
 }
 
-pub fn make_request(socket_path: &'static str, request_type: RequestType, path: &'static str) -> response::Response {
+pub fn make_request(socket_path: &str, request_type: RequestType, path: &str) -> response::Response {
   let http_request = make_request_str(request_type, path);
   let socket = Path::new(socket_path);
 
@@ -57,7 +57,7 @@ pub fn make_request(socket_path: &'static str, request_type: RequestType, path: 
 
   response::parse(resp.as_slice())
 }
-  
+
 #[test]
 fn test_make_request_str() {
   let request_type = GET;

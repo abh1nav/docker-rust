@@ -1,7 +1,7 @@
 #![allow(uppercase_variables)]
 
+#[cfg(test)]
 use serialize::{json, Decodable};
-use serialize::json::DecoderError;
 
 use super::port_mapping::PortMapping;
 
@@ -29,16 +29,6 @@ pub struct Container {
 
 #[deriving(Decodable)]
 pub type Containers = Vec<Container>;
-
-///
-/// This is used to convert the HTTP response into a Containers object
-///
-
-pub fn parse(json_string: &str) -> Result<Containers, DecoderError> {
-  let json_object = json::from_str(json_string);
-  let mut decoder = json::Decoder::new(json_object.unwrap());
-  Decodable::decode(&mut decoder)
-}
 
 ///
 /// Tests
@@ -70,9 +60,11 @@ fn test_container_deserialization() {
 }
 
 #[test]
-fn test_parse_and_containers_deserialization() {
+fn test_containers_deserialization() {
   let json_string = "[{\"Command\":\"/bin/bash\",\"Created\":1402812645,\"Id\":\"8397b5a5a497b701d3514ca18ba11dc24b32378a7328ef28510c0f49ef30cddf\",\"Image\":\"ubuntu:14.04\",\"Names\":[\"/silly_kirch\"],\"Ports\":[],\"Status\": \"Up 26 seconds\",\"Ports\":[{\"IP\": \"0.0.0.0\", \"PrivatePort\": 9000, \"PublicPort\": 9001, \"Type\": \"tcp\"}],\"SizeRootFs\":100,\"SizeRw\":12288}]";
-  let containers: Containers = parse(json_string).unwrap();
+  let json_object = json::from_str(json_string);
+  let mut decoder = json::Decoder::new(json_object.unwrap());
+  let containers: Containers = Decodable::decode(&mut decoder).unwrap();
   assert!(containers.len() == 1);
  
   let c = containers.get(0);
