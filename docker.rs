@@ -8,6 +8,7 @@ use serialize::json::DecoderError;
 
 use Containers = super::common::containers::Containers;
 use Version = super::common::version::Version;
+use SysInfo = super::common::sys_info::SysInfo;
 use http = super::http;
 
 pub struct Docker {
@@ -146,14 +147,41 @@ impl Docker {
   }
 
   ///
-  /// GET /version
+  /// GET /info
   ///
-  fn parse_get_version(json_string: &str) -> Result<Version, DecoderError> {
+
+  fn parse_get_sys_info(json_string: &str) -> Result<SysInfo, DecoderError> {
     let json_object = json::from_str(json_string);
     let mut decoder = json::Decoder::new(json_object.unwrap());
     Decodable::decode(&mut decoder)
   }
 
+  pub fn get_sys_info(&self) -> SysInfo {
+    let method = http::GET;
+    let path = "/info";
+    let response = http::make_request(self.socket_path.as_slice(), method, path);
+    if response.status_code == 200 {
+      let result = Docker::parse_get_sys_info(response.body.as_slice());
+      match result {
+        Err(_) => fail!("JSON response could not be decoded"),
+        Ok(sys_info) => sys_info
+      }  
+    }
+    else {
+      fail!("HTTP response code was {}", response.status_code);
+    }
+
+  }
+
+  ///
+  /// GET /version
+  ///
+
+  fn parse_get_version(json_string: &str) -> Result<Version, DecoderError> {
+    let json_object = json::from_str(json_string);
+    let mut decoder = json::Decoder::new(json_object.unwrap());
+    Decodable::decode(&mut decoder)
+  }
 
   pub fn get_version(&self) -> Version {
     let method = http::GET;
@@ -236,6 +264,14 @@ fn test_restart_container() {
 
   client.stop_container(container_id.as_slice());
   client.remove_container(container_id.as_slice());
+}
+
+#[test]
+fn test_get_sys_info() {
+  let client = make_client();
+  let sys_info: SysInfo = client.get_sys_info();
+  assert!(sys_info.Debug == 0);
+  assert!(sys_info.DriverStatus.len() > 0);
 }
 
 #[test]

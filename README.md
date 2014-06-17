@@ -57,6 +57,10 @@ client.remove_container_with_force(container_id.as_slice());
 
 ```rust
 
+// Get system info
+let sys_info = client.get_sys_info();
+println!("Number of containers: {}\nNumber of Images: {}", sys_info.Containers, sys_info.Images);
+
 // Get docker version
 let version = client.get_version();
 println!("Docker version: {}", version.Version);
