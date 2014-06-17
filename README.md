@@ -27,7 +27,8 @@ let client: Docker = Docker {
 	socket_path: "/var/run/docker.sock"
 };
   
-let containers = client.get_containers();
+// common::containers::Containers is a Vec<common::containers::Container>
+let containers: Containers = client.get_containers();
   
 println!("Running container count: {}", containers.len());
 ```
@@ -57,11 +58,11 @@ client.remove_container_with_force(container_id.as_slice());
 
 ```rust
 
-// Get system info
+// Get system info -> common::sys_info::SysInfo
 let sys_info = client.get_sys_info();
 println!("Number of containers: {}\nNumber of Images: {}", sys_info.Containers, sys_info.Images);
 
-// Get docker version
+// Get docker version -> common::version::Version
 let version = client.get_version();
 println!("Docker version: {}", version.Version);
 
