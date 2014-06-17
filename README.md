@@ -52,3 +52,13 @@ client.remove_container(container_id.as_slice());
 // OR remove with the force flag
 client.remove_container_with_force(container_id.as_slice());
 ```
+
+### Utility endpoints
+
+```rust
+
+// Get docker version
+let version = client.get_version();
+println!("Docker version: {}", version.Version);
+
+```
