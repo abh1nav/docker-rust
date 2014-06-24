@@ -4,8 +4,7 @@
 
 #![license = "MIT/ASL2"]
 
-#![crate_type = "dylib"]
-#![crate_type = "rlib"]
+#![crate_type = "lib"]
 
 #![feature (globs, macro_rules)]
 
