@@ -12,7 +12,7 @@ use SysInfo = super::common::sys_info::SysInfo;
 use http = super::http;
 
 pub struct Docker {
-  socket_path: String
+  pub socket_path: String
 }
 
 impl Docker {

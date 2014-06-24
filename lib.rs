@@ -12,7 +12,10 @@ extern crate collections;
 extern crate debug;
 extern crate serialize;
 
+pub use docker::Docker;
+
 mod http;
 
 pub mod common;
 pub mod docker;
+
