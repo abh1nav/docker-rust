@@ -2,14 +2,16 @@
 use std::io::Command;
 #[cfg(test)]
 use std::io::timer;
+#[cfg(test)]
+use std::time::Duration;
 
 use serialize::{json, Decodable};
 use serialize::json::DecoderError;
 
-use Containers = super::common::containers::Containers;
-use Version = super::common::version::Version;
-use SysInfo = super::common::sys_info::SysInfo;
-use http = super::http;
+use super::common::containers::Containers as Containers;
+use super::common::version::Version as Version;
+use super::common::sys_info::SysInfo as SysInfo;
+use super::http as http;
 
 pub struct Docker {
   pub socket_path: String
@@ -67,7 +69,7 @@ impl Docker {
       Some(timeout_value) => {
         // If a wait time was specified, include it in the query string
         path.push_str("?t=");
-        path.push_str(timeout_value.to_str().as_slice());
+        path.push_str(timeout_value.to_string().as_slice());
       }
       None => {
         // Don't do anything
@@ -75,8 +77,8 @@ impl Docker {
     };
 
     let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
-    if response.status_code < 200 || response.status_code >= 300 {
-      fail!("HTTP response code was {}", response.status_code);
+    if response.status_code < 200 || response.status_code >= 400 {
+      fail!("HTTP response code was {}\n{}", response.status_code, response.body);
     }
   }
 
@@ -103,7 +105,7 @@ impl Docker {
       Some(timeout_value) => {
         // If a wait time was specified, include it in the query string
         path.push_str("?t=");
-        path.push_str(timeout_value.to_str().as_slice());
+        path.push_str(timeout_value.to_string().as_slice());
       }
       None => {
         // Don't do anything
@@ -213,11 +215,11 @@ fn make_client() -> Docker {
 
 #[cfg(test)]
 fn start_busybox_container() -> Option<String> {
-  match Command::new("docker").arg("run").arg("-d")
-                              .arg("busybox").output() {
+  match Command::new("docker").arg("run").arg("-t").arg("-d")
+                              .arg("busybox:latest").output() {
     Ok(process_output) => {
       let output = String::from_utf8(process_output.output).unwrap();
-      timer::sleep(1000);
+      timer::sleep(Duration::milliseconds(1000));
       let clean_output = output.as_slice().replace("\r\n", "");
       let container_id = clean_output.as_slice().trim();
       Some(String::from_str(container_id))
@@ -260,7 +262,7 @@ fn test_restart_container() {
 
   let client = make_client();
   client.restart_container(container_id.as_slice());
-  timer::sleep(3000);
+  timer::sleep(Duration::milliseconds(3000));
 
   client.stop_container(container_id.as_slice());
   client.remove_container(container_id.as_slice());

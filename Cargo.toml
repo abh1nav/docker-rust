@@ -1,0 +1,5 @@
+[package]
+
+name = "docker-rust"
+version = "0.0.1"
+authors = ["Abhinav Ajaonkar <abhinav316@gmail.com>"]

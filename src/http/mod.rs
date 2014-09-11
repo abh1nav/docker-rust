@@ -50,7 +50,7 @@ pub fn make_request(socket_path: &str, request_type: RequestType, path: &str) ->
   };
 
   // Read response
-  let resp: String = match stream.read_to_str() {
+  let resp: String = match stream.read_to_string() {
     Err(_) => fail!("response derped"),
     Ok(resp) => resp
   };

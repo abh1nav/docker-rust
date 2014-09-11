@@ -1,5 +1,3 @@
-#![crate_id = "docker#0.1"]
-
 #![comment = "Rust Docker Client"]
 
 #![license = "MIT/ASL2"]
