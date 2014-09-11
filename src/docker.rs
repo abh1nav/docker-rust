@@ -77,8 +77,8 @@ impl Docker {
     };
 
     let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
-    if response.status_code < 200 || response.status_code >= 300 {
-      fail!("HTTP response code was {}", response.status_code);
+    if response.status_code < 200 || response.status_code >= 400 {
+      fail!("HTTP response code was {}\n{}", response.status_code, response.body);
     }
   }
 
@@ -215,8 +215,8 @@ fn make_client() -> Docker {
 
 #[cfg(test)]
 fn start_busybox_container() -> Option<String> {
-  match Command::new("docker").arg("run").arg("-d")
-                              .arg("busybox").output() {
+  match Command::new("docker").arg("run").arg("-t").arg("-d")
+                              .arg("busybox:latest").output() {
     Ok(process_output) => {
       let output = String::from_utf8(process_output.output).unwrap();
       timer::sleep(Duration::milliseconds(1000));
@@ -260,12 +260,12 @@ fn test_restart_container() {
     None => fail!("Failed to start test container")
   };
 
-  //let client = make_client();
-  //client.restart_container(container_id.as_slice());
-  //timer::sleep(Duration::milliseconds(3000));
+  let client = make_client();
+  client.restart_container(container_id.as_slice());
+  timer::sleep(Duration::milliseconds(3000));
 
-  //client.stop_container(container_id.as_slice());
-  //client.remove_container(container_id.as_slice());
+  client.stop_container(container_id.as_slice());
+  client.remove_container(container_id.as_slice());
 }
 
 #[test]
