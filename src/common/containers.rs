@@ -1,4 +1,4 @@
-#![allow(uppercase_variables)]
+#![allow(non_snake_case)]
 
 #[cfg(test)]
 use serialize::{json, Decodable};
@@ -52,7 +52,7 @@ fn test_container_deserialization() {
   assert!(c.Status == "Up 26 seconds".to_string());
   assert!(c.Ports.len() == 1);
 
-  let port_mapping = c.Ports.get(0);
+  let port_mapping = &c.Ports[0];
   assert!(port_mapping.IP == "0.0.0.0".to_string());
   assert!(port_mapping.PrivatePort == 9000);
   assert!(port_mapping.PublicPort == 9001);
@@ -67,7 +67,7 @@ fn test_containers_deserialization() {
   let containers: Containers = Decodable::decode(&mut decoder).unwrap();
   assert!(containers.len() == 1);
  
-  let c = containers.get(0);
+  let c = &containers[0];
   assert!(c.Command == "/bin/bash".to_string());
   assert!(c.Created == 1402812645u64);
   assert!(c.Id == "8397b5a5a497b701d3514ca18ba11dc24b32378a7328ef28510c0f49ef30cddf".to_string());
@@ -79,7 +79,7 @@ fn test_containers_deserialization() {
   assert!(c.Status == "Up 26 seconds".to_string());
   assert!(c.Ports.len() == 1);
   
-  let port_mapping = c.Ports.get(0);
+  let port_mapping = &c.Ports[0];
   assert!(port_mapping.IP == "0.0.0.0".to_string());
   assert!(port_mapping.PrivatePort == 9000);
   assert!(port_mapping.PublicPort == 9001);

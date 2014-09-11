@@ -1,12 +1,12 @@
-#![allow(uppercase_variables)]
+#![allow(non_snake_case)]
 
 #[cfg(test)]
 use serialize::{json, Decodable};
 
 #[deriving(Decodable)]
 pub struct SysInfo {
-	pub Containers: uint,
-	pub Debug: uint,
+  pub Containers: uint,
+  pub Debug: uint,
   pub Driver: String,
   pub DriverStatus: Vec<Vec<String>>,
   pub ExecutionDriver: String,
