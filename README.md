@@ -3,15 +3,14 @@
 A client library for the Docker Remote API written in Rust.  
 Currently targetting API v1.12+
   
-## Build
+A lot of functionality is currently on hold until Rust's HTTP and JSON libs are up to snuff.
   
+### Run Tests
+
 ```bash
-git clone git@github.com:abh1nav/docker-rust.git
-cd docker-rust
-cargo build
-cargo test
+make test
 ```
-  
+
 ## Use
 
 Declare cargo dependency in your `Cargo.toml`

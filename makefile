@@ -1,12 +1,10 @@
 all: clean compile
 
 clean:
-	rm -Rf build
-	mkdir build
+	rm -Rf target
 
 compile:
-	rustc lib.rs --out-dir=build
+	cargo build
 
 test:
-	rustc --test lib.rs
-	./docker
+	cargo test
