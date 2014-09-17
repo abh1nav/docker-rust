@@ -13,6 +13,7 @@ extern crate serialize;
 pub use docker::Docker;
 
 mod http;
+mod methods;
 
 pub mod common;
 pub mod docker;

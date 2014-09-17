@@ -3,3 +3,4 @@ docker
 libdocker*
 Cargo.lock
 target/*
+*.glue

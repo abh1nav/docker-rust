@@ -5,13 +5,12 @@ use std::io::timer;
 #[cfg(test)]
 use std::time::Duration;
 
-use serialize::{json, Decodable};
-use serialize::json::DecoderError;
-
 use super::common::containers::Containers as Containers;
 use super::common::version::Version as Version;
 use super::common::sys_info::SysInfo as SysInfo;
-use super::http as http;
+
+use super::methods::container as container;
+use super::methods::info as info;
 
 pub struct Docker {
   pub socket_path: String
@@ -23,27 +22,8 @@ impl Docker {
   /// GET /containers/json
   ///
 
-  fn parse_get_containers(json_string: &str) -> Result<Containers, DecoderError> {
-    let json_object = json::from_str(json_string);
-    let mut decoder = json::Decoder::new(json_object.unwrap());
-    Decodable::decode(&mut decoder)
-  }
-
   pub fn get_containers(&self) -> Containers {
-    let method = http::GET;
-    let path = "/containers/json?all=1&size=1";
-
-    let response = http::make_request(self.socket_path.as_slice(), method, path);
-    if response.status_code >= 200 && response.status_code < 300 {
-      let result = Docker::parse_get_containers(response.body.as_slice());
-      match result {
-        Err(_) => fail!("JSON response could not be decoded"),
-        Ok(containers) => containers
-      }  
-    }
-    else {
-      fail!("HTTP response code was {}", response.status_code);
-    }
+    container::get_containers(self.socket_path.as_slice())
   }
 
   ///
@@ -51,35 +31,11 @@ impl Docker {
   ///
 
   pub fn stop_container(&self, id: &str) {
-    self.stop_container_impl(id, None);
+    container::stop_container_impl(self.socket_path.as_slice(), id, None);
   }
 
   pub fn stop_container_with_timeout(&self, id: &str, wait_time: uint) {
-    self.stop_container_impl(id, Some(wait_time));
-  }
-
-  fn stop_container_impl(&self, id: &str, wait_time: Option<uint>) {
-    let method = http::POST;
-    let mut path = String::new();
-    path.push_str("/containers/");
-    path.push_str(id);
-    path.push_str("/stop");
-
-    match wait_time {
-      Some(timeout_value) => {
-        // If a wait time was specified, include it in the query string
-        path.push_str("?t=");
-        path.push_str(timeout_value.to_string().as_slice());
-      }
-      None => {
-        // Don't do anything
-      }
-    };
-
-    let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
-    if response.status_code < 200 || response.status_code >= 400 {
-      fail!("HTTP response code was {}\n{}", response.status_code, response.body);
-    }
+    container::stop_container_impl(self.socket_path.as_slice(), id, Some(wait_time));
   }
 
   ///
@@ -87,119 +43,39 @@ impl Docker {
   ///
 
   pub fn restart_container(&self, id: &str) {
-    self.restart_container_impl(id, None);
+    container::restart_container_impl(self.socket_path.as_slice(), id, None);
   }
 
   pub fn restart_container_with_timeout(&self, id: &str, wait_time: uint) {
-    self.restart_container_impl(id, Some(wait_time));
+    container::restart_container_impl(self.socket_path.as_slice(), id, Some(wait_time));
   }
-
-  fn restart_container_impl(&self, id: &str, wait_time: Option<uint>) {
-    let method = http::POST;
-    let mut path = String::new();
-    path.push_str("/containers/");
-    path.push_str(id);
-    path.push_str("/restart");
-
-    match wait_time {
-      Some(timeout_value) => {
-        // If a wait time was specified, include it in the query string
-        path.push_str("?t=");
-        path.push_str(timeout_value.to_string().as_slice());
-      }
-      None => {
-        // Don't do anything
-      }
-    };
-
-    let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
-    if response.status_code < 200 || response.status_code >= 300 {
-      fail!("HTTP response code was {}", response.status_code);
-    }
-  }
-
 
   ///
   /// DELETE /containers/(id)/
   ///
 
   pub fn remove_container(&self, id: &str) {
-    self.remove_container_impl(id, false);
+    container::remove_container_impl(self.socket_path.as_slice(), id, false);
   }
 
   pub fn remove_container_with_force(&self, id:&str) {
-    self.remove_container_impl(id, true); 
-  }
-
-  fn remove_container_impl(&self, id:&str, force: bool) {
-    let method = http::DELETE;
-    let mut path = String::new();
-    path.push_str("/containers/");
-    path.push_str(id);
-    path.push_str("?v=1");
-
-    if force {
-      path.push_str("&f=1");
-    }
-
-    let response = http::make_request(self.socket_path.as_slice(), method, path.as_slice());
-    if response.status_code < 200 || response.status_code >= 300 {
-      fail!("HTTP response code was {}", response.status_code);
-    }
+    container::remove_container_impl(self.socket_path.as_slice(), id, true); 
   }
 
   ///
   /// GET /info
   ///
 
-  fn parse_get_sys_info(json_string: &str) -> Result<SysInfo, DecoderError> {
-    let json_object = json::from_str(json_string);
-    let mut decoder = json::Decoder::new(json_object.unwrap());
-    Decodable::decode(&mut decoder)
-  }
-
   pub fn get_sys_info(&self) -> SysInfo {
-    let method = http::GET;
-    let path = "/info";
-    let response = http::make_request(self.socket_path.as_slice(), method, path);
-    if response.status_code == 200 {
-      let result = Docker::parse_get_sys_info(response.body.as_slice());
-      match result {
-        Err(_) => fail!("JSON response could not be decoded"),
-        Ok(sys_info) => sys_info
-      }  
-    }
-    else {
-      fail!("HTTP response code was {}", response.status_code);
-    }
-
+    info::get_sys_info(self.socket_path.as_slice())
   }
 
   ///
   /// GET /version
   ///
 
-  fn parse_get_version(json_string: &str) -> Result<Version, DecoderError> {
-    let json_object = json::from_str(json_string);
-    let mut decoder = json::Decoder::new(json_object.unwrap());
-    Decodable::decode(&mut decoder)
-  }
-
   pub fn get_version(&self) -> Version {
-    let method = http::GET;
-    let path = "/version";
-    let response = http::make_request(self.socket_path.as_slice(), method, path);
-    if response.status_code == 200 {
-      let result = Docker::parse_get_version(response.body.as_slice());
-      match result {
-        Err(_) => fail!("JSON response could not be decoded"),
-        Ok(version) => version
-      }  
-    }
-    else {
-      fail!("HTTP response code was {}", response.status_code);
-    }
-
+    info::get_version(self.socket_path.as_slice())
   }
 
 }
