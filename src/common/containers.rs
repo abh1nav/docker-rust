@@ -24,7 +24,7 @@ pub struct Container {
 
 ///
 /// Containers is a vector of Container objects - need this for 
-/// auto-deserilization
+/// auto-deserialization
 ///
 
 #[deriving(Decodable)]

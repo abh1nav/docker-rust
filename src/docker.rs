@@ -6,10 +6,12 @@ use std::io::timer;
 use std::time::Duration;
 
 use super::common::containers::Containers as Containers;
+use super::common::images::Images as Images;
 use super::common::version::Version as Version;
 use super::common::sys_info::SysInfo as SysInfo;
 
 use super::methods::container as container;
+use super::methods::image as image;
 use super::methods::info as info;
 
 pub struct Docker {
@@ -60,6 +62,14 @@ impl Docker {
 
   pub fn remove_container_with_force(&self, id:&str) {
     container::remove_container_impl(self.socket_path.as_slice(), id, true); 
+  }
+
+  ///
+  /// GET /images/json
+  ///
+
+  pub fn get_images(&self) -> Images {
+    image::get_images(self.socket_path.as_slice())
   }
 
   ///
@@ -142,6 +152,15 @@ fn test_restart_container() {
 
   client.stop_container(container_id.as_slice());
   client.remove_container(container_id.as_slice());
+}
+
+#[allow(type_limits)]
+#[test]
+fn test_get_images() {
+  let client = make_client();
+  let images = client.get_images();
+  let count: uint = images.len();
+  assert!(count >= 0);
 }
 
 #[test]

@@ -62,6 +62,15 @@ client.remove_container(container_id.as_slice());
 client.remove_container_with_force(container_id.as_slice());
 ```
 
+### Get a list of Images
+  
+```rust
+// common::images::Images is a Vec<common::images::Image>
+let images: Images = client.get_images();
+  
+println!("Image count: {}", images.len());
+```
+  
 ### Utility endpoints
 
 ```rust
